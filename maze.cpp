@@ -38,12 +38,21 @@ bool animate = false;
 //screens
 //GLubyte*
 
+/////////////////OLD STUFF///////////////
 /* TEXTURE */
-GLubyte* image;
+/*GLubyte* image;
 GLubyte* img_data;
-int width, height, MAX;
+int width, height, MAX;*/
+///////////////END OF OLD STUFF/////////////
 
-GLubyte* LoadPPM(char* file, int* width, int* height, int* MAX)
+/////////////////NEW STUFF///////////////
+GLubyte* wall_tex;
+GLubyte* floor_tex;
+int width, height, MAX;
+GLuint textures[2];
+///////////////END OF NEW STUFF//////////////
+
+GLubyte* LoadPPM(const char* file, int* width, int* height, int* MAX)
 {
 	GLubyte* img;
 	FILE *fd;
@@ -106,16 +115,19 @@ void drawCube() {
 	glBegin(GL_QUADS);
 	
 	//front
-    glColor3f(1.0f, 0.0f, 0.0f);     // Red
     glNormal3f(0.0, 0.0, -1.0);
+    glBindTexture(GL_TEXTURE_2D, textures[0]);
     glTexCoord2f(0, 0);
     glVertex3f( 1.0f/2,  1.0f/2, 1.0f/2);
+
     glNormal3f(0.0, 0.0, -1.0);
     glTexCoord2f(0, 1);
     glVertex3f(-1.0f/2,  1.0f/2, 1.0f/2);
+
     glNormal3f(0.0, 0.0, -1.0);
     glTexCoord2f(1, 0);
     glVertex3f(-1.0f/2, -1.0f/2, 1.0f/2);
+
     glNormal3f(0.0, 0.0, -1.0);
     glTexCoord2f(1, 1);
     glVertex3f( 1.0f/2, -1.0f/2, 1.0f/2);
@@ -124,12 +136,15 @@ void drawCube() {
 	glNormal3f(0.0, 1.0, 0.0);
 	glTexCoord2f(0, 0);
 	glVertex3f( 1.0f/2, 1.0f/2, -1.0f/2);
+
 	glNormal3f(0.0, 1.0, 0.0);
 	glTexCoord2f(0, 1);
     glVertex3f(-1.0f/2, 1.0f/2, -1.0f/2);
+
     glNormal3f(0.0, 1.0, 0.0);
     glTexCoord2f(1, 0);
     glVertex3f(-1.0f/2, 1.0f/2,  1.0f/2);
+
     glNormal3f(0.0, 1.0, 0.0);
     glTexCoord2f(1, 1);
     glVertex3f( 1.0f/2, 1.0f/2,  1.0f/2);
@@ -138,12 +153,15 @@ void drawCube() {
 	glNormal3f(0.0, -1.0, 0.0);
 	glTexCoord2f(0, 0);
 	glVertex3f( 1.0f/2, -1.0f/2,  1.0f/2);
+
 	glNormal3f(0.0, -1.0, 0.0);
 	glTexCoord2f(0, 1);
     glVertex3f(-1.0f/2, -1.0f/2,  1.0f/2);
+
     glNormal3f(0.0, -1.0, 0.0);
     glTexCoord2f(1, 0);
     glVertex3f(-1.0f/2, -1.0f/2, -1.0f/2);
+
     glNormal3f(0.0, -1.0, 0.0);
     glTexCoord2f(1, 1);
     glVertex3f( 1.0f/2, -1.0f/2, -1.0f/2);
@@ -152,34 +170,51 @@ void drawCube() {
 	glNormal3f(-1.0, 0.0, 0.0);
 	glTexCoord2f(0, 0);
 	glVertex3f(-1.0f/2,  1.0f/2,  1.0f/2);
+
 	glNormal3f(-1.0, 0.0, 0.0);
 	glTexCoord2f(0, 1);
     glVertex3f(-1.0f/2,  1.0f/2, -1.0f/2);
+
     glNormal3f(-1.0, 0.0, 0.0);
     glTexCoord2f(1, 0);
     glVertex3f(-1.0f/2, -1.0f/2, -1.0f/2);
+
     glNormal3f(-1.0, 0.0, 0.0);
     glTexCoord2f(1, 1);
     glVertex3f(-1.0f/2, -1.0f/2,  1.0f/2);
 
 	//right side
 	glNormal3f(1.0, 0.0, 0.0);
+	glTexCoord2f(0, 0);
 	glVertex3f(1.0f/2,  1.0f/2, -1.0f/2);
+
 	glNormal3f(1.0, 0.0, 0.0);
+	glTexCoord2f(0, 1);
     glVertex3f(1.0f/2,  1.0f/2,  1.0f/2);
+
     glNormal3f(1.0, 0.0, 0.0);
+    glTexCoord2f(1, 0);
     glVertex3f(1.0f/2, -1.0f/2,  1.0f/2);
+
     glNormal3f(1.0, 0.0, 0.0);
+    glTexCoord2f(1, 1);
     glVertex3f(1.0f/2, -1.0f/2, -1.0f/2);
 
 	//back side
 	glNormal3f(0.0, 0.0, 1.0);
+	glTexCoord2f(0, 0);
 	glVertex3f( 1.0f/2, -1.0f/2, -1.0f/2);
+
 	glNormal3f(0.0, 0.0, 1.0);
+	glTexCoord2f(0, 1);
     glVertex3f(-1.0f/2, -1.0f/2, -1.0f/2);
+
     glNormal3f(0.0, 0.0, 1.0);
+    glTexCoord2f(1, 0);
     glVertex3f(-1.0f/2,  1.0f/2, -1.0f/2);
+
     glNormal3f(0.0, 0.0, 1.0);
+    glTexCoord2f(1, 1);
     glVertex3f( 1.0f/2,  1.0f/2, -1.0f/2);
 
 	glEnd();
@@ -195,6 +230,7 @@ void drawXZPlane(float y_intercept, float size){
 		    	//draw quad vertices CCW
 		    	//assigning normals as well
 		    	//it's a flat x-z plane so the normal is always 1 in the y direction
+		       	glBindTexture(GL_TEXTURE_2D, textures[1]);
 		       	glNormal3f(0,1,0);
 		        glVertex3f(x, y_intercept, z);
 
@@ -215,7 +251,7 @@ void drawWalls(Cell path[][SIZE]){
 	for (int x = 0; x < SIZE; x++){
 		for (int z= 0; z < SIZE; z++){
 			if (!path[x][z].vacant){
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+				/*glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //TEXTURE_MIN_FILTER*/
@@ -579,9 +615,13 @@ void display()
 
 	glPushMatrix();
 	glScalef(mazeScale, 1, mazeScale);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	drawXZPlane(0, SIZE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //TEXTURE_MIN_FILTER
+	//glBindTexture(GL_TEXTURE_2D, textures[1]);
+	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //TEXTURE_MIN_FILTER
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	drawWalls(maze);
+	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 
 	drawItems();
@@ -594,6 +634,27 @@ void display()
 
 	//force a redisplay, to keep the animation running
 	glutPostRedisplay();
+}
+
+void init() {
+	glEnable(GL_TEXTURE_2D);
+	glGenTextures(2, textures);
+	//load wall texture
+	wall_tex = LoadPPM("marble.ppm", &width, &height, &MAX);
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, wall_tex);
+
+	floor_tex = LoadPPM("snail_a.ppm", &width, &height, &MAX);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, floor_tex);
 }
 
 void idle(){
@@ -634,11 +695,12 @@ int main(int argc, char** argv)
 	glutSpecialFunc(special);
 	glutKeyboardUpFunc(keyUp);
 	glutIdleFunc(idle);
+	init();
 
-	glEnable(GL_TEXTURE_2D);
+	/*glEnable(GL_TEXTURE_2D);
 	img_data = LoadPPM((char*)"marble.ppm", &width, &height, &MAX);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-	GL_UNSIGNED_BYTE, img_data); 
+	GL_UNSIGNED_BYTE, img_data); */
 
 	Initialize(maze);
 	DrawMaze(maze);
