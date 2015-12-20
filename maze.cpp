@@ -248,6 +248,8 @@ void drawXZPlane(float y_intercept, float size){
 }
 
 void drawWalls(Cell path[][SIZE]){
+	glEnable (GL_BLEND);
+	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	for (int x = 0; x < SIZE; x++){
 		for (int z= 0; z < SIZE; z++){
 			if (!path[x][z].vacant){
@@ -266,6 +268,7 @@ void drawWalls(Cell path[][SIZE]){
 			}
 		}
 	}
+	glDisable(GL_BLEND);
 	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //TEXTURE_MIN_FILTER
 	//glutSolidTeapot(1);
 
@@ -419,7 +422,7 @@ void drawPenguin(float* pos, float* rot, int frame){
 		}
 	}
 
-	glColor3f(0,0,1);
+	glColor3f(0,0,0.5);
 	glPushMatrix();
 	glRotatef(90,1,0,0);
 	glTranslatef(0,0,-0.5);
@@ -581,7 +584,6 @@ void drawText(char* text, void* font, int posX, int posY, float scale, float r, 
 	glFlush();
 }
 
-<<<<<<< HEAD
 // void drawHUD(GLubyte* image, int x, int y, float w, float h){
 // 	glRasterPos2i(x,y); 
 // 	glPixelZoom(-1, 1); 
@@ -616,11 +618,6 @@ void draw2D(){
 	//drawHUD(img_data, 400, 400, width, height);
 	drawText("you win!!!",GLUT_STROKE_ROMAN, 40,100,1,1,0,0);
 	drawText("press enter to play again :^)",GLUT_STROKE_ROMAN, 30, 40,0.25,1,0,0);
-
-	drawText("YOU WON!!!!",GLUT_BITMAP_TIMES_ROMAN_24, 200,200,1,0,0);
-
-	drawText("hello",GLUT_BITMAP_HELVETICA_18, 50, 50, 1,0,0);
-
 
 	drawTime(GLUT_BITMAP_HELVETICA_18, 100, 100, 1, 0 , 0);
 
@@ -683,7 +680,7 @@ void init() {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, wall_tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, wall_tex);
 
 	floor_tex = LoadPPM("snail_a.ppm", &width, &height, &MAX);
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
@@ -691,7 +688,7 @@ void init() {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, floor_tex);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, floor_tex);
 }
 
 void initMaze(){
