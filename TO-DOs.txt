@@ -1,9 +1,11 @@
 TO-DOs
-- color the lil ball things
-- ice texture for walls (+ alpha blending?)
-- snow texture for floor (or material)
-- proper win screen
-- character select screen (+ present character?)
-- skybox
-- sound effects!
-- mini-map or pickup-counter
+- fix pickup counter
+- improve win screen
+- improve skybox (find a better texture/set of textures)
+- character select screen (+ gift box character?)
+- mini-map
+
+BEFORE SUBMISSION
+- comment code!!!!
+- give credit to algos/textures found online
+- write readme

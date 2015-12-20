@@ -297,11 +297,10 @@ bool* itemIntersection(int** items, int numItems,bool* pickedUp, float x, float 
 	return pickedUp;
 }
 
-bool checkWin(bool* items, int numItems){
+int itemsPickedUp(bool* items, int numItems){
 	int pickedUp = 0;
 	for (int i = 0; i < numItems; i++){
 		if (items[i]) pickedUp++;
 	}
-	if (pickedUp == numItems) return true;
-	else return false;
+	return pickedUp;
 }

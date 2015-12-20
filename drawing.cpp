@@ -13,13 +13,9 @@ using namespace std;
 /////////////////NEW STUFF///////////////
 GLubyte* wall_tex;
 GLubyte* floor_tex;
-GLubyte* topT;
-GLubyte* frontT;
-GLubyte* leftT;
-GLubyte* rightT;
-GLubyte* backT;
+GLubyte* sky;
 int width, height, MAX;
-GLuint textures[8];
+GLuint textures[3];
 ///////////////END OF NEW STUFF//////////////
 
 //material
@@ -298,16 +294,16 @@ void drawPenguin(float* pos, float* rot, int frame, bool animate){
 		}
 	}
 
-	glColor3f(0,0,0.5);
+	glColor3f(0.15,0.15,0.5);
 	glPushMatrix();
 	glRotatef(90,1,0,0);
-	glTranslatef(0,0,-0.5);
+	glTranslatef(0,0,-1);
 	GLUquadric* qobj = gluNewQuadric();
-	gluCylinder(qobj, 0.75, 0.75, 1.5, 20, 20);
+	gluCylinder(qobj, 0.75, 0.75, 2, 20, 20);
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslatef(0, 0.5, 0);
+	glTranslatef(0, 1, 0);
 	glutSolidSphere(0.75,20,20);
 
 	//translate and draw right eye
@@ -464,11 +460,11 @@ void drawSnowman(float* pos, float* rot, int frame, bool animate)
 	glEnable(GL_LIGHTING);
 }
 
-void drawText(char* text, void* font, int posX, int posY, float scale, float r, float g, float b){
+void drawText(const char* text, void* font, int posX, int posY, float scale, float r, float g, float b){
 	glPushMatrix();
 	glColor3f(r,g,b);
 	glTranslatef(posX,posY,0);
-	glScalef(scale,scale,0);
+	glScalef(scale,scale,1);
 		for (int i = 0; i < strlen(text); i++){
 			glutStrokeCharacter(font, text[i]);
 		}
@@ -483,21 +479,28 @@ void drawText(char* text, void* font, int posX, int posY, float scale, float r, 
 // 	glFlush(); 
 // }
 
-void drawTime(void* font, int x, int y, float r, float g, float b){
-	int currentTime = glutGet(GLUT_ELAPSED_TIME)/1000;
-	//string stringTime = to_string(currentTime);
+void drawTime(void* font, int x, int y, float r, float g, float b, int seconds){
+	int digits[] = {48,48,48};
+	if (seconds<10) digits[2] += seconds;
+	else if (seconds<60){
+		digits[2] += seconds % 10;
+		digits[1] += seconds / 10;
+	}
+	else{
+		digits[2] += seconds % 60 % 10;
+		digits[1] += seconds / 10 % 6;
+		digits[0] += seconds / 60;
+	}
 
 	glColor3f(r,g,b);
 	glRasterPos2i(x, y);
-	glutBitmapCharacter(font, currentTime);
-/*		for (int i = 0; i < 3; i++){
-			glutBitmapCharacter(font, minSec[i]);
-			if i = 1,
-				glutBitmapCharacter(font, ':');
-		}*/
+		for (int i = 0; i < 3; i++){
+			glutBitmapCharacter(font, digits[i]);
+			if (i == 0) glutBitmapCharacter(font, ':');
+		}
 }
 
-void draw2D(bool win){
+void draw2D(bool win, bool playing, int seconds, int pickedUp){
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0, 600, 0, 600);
@@ -507,13 +510,20 @@ void draw2D(bool win){
 	glDisable(GL_LIGHTING);
 
 
-	//drawHUD(img_data, 400, 400, width, height);
+	drawTime(GLUT_BITMAP_HELVETICA_18, 20, 20, 1, 0 , 0, seconds);
 	if (win){
 		drawText("you win!!!",GLUT_STROKE_ROMAN, 40,100,1,1,0,0);
 		drawText("press enter to play again :^)",GLUT_STROKE_ROMAN, 30, 40,0.25,1,0,0);
 	}
 
-	drawTime(GLUT_BITMAP_HELVETICA_18, 100, 100, 1, 0 , 0);
+	else {
+		char* count = new char[3];
+		count[0] = pickedUp+48;
+		count[1] = '/';
+		count[2] = 57;
+		const char* countC = count;
+		drawText(countC,GLUT_STROKE_ROMAN, 60, 20, 0.1, 1, 0, 0);
+	}
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
@@ -563,122 +573,115 @@ void drawSnow(float** snows, int numSnows){
 void drawSkyBox(float s, float n){
 	
 	//front
-	glBindTexture(GL_TEXTURE_2D, textures[5]);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
 	glBegin(GL_QUADS);
+
     glNormal3f(0.0, 0.0, -n);
     glTexCoord2f(1,1);
-    glVertex3f( s/2,  s/2, s/2);
+    glVertex3f( s,  s, s);
 
     glNormal3f(0.0, 0.0, -n);
     glTexCoord2f(1,0);
-    glVertex3f( s/2, -s/2, s/2);
+    glVertex3f( s, -s, s);
 
     glNormal3f(0.0, 0.0, -n);
     glTexCoord2f(0,1);
-    glVertex3f(-s/2, -s/2, s/2);
+    glVertex3f(-s, -s, s);
 
     glNormal3f(0.0, 0.0, -n);
     glTexCoord2f(0,0);
-    glVertex3f(-s/2,  s/2, s/2);
-    glEnd();
+    glVertex3f(-s,  s, s);
+
     
 	//top
-	glBindTexture(GL_TEXTURE_2D, textures[2]);
-	glBegin(GL_QUADS);
+
     glNormal3f(0.0, n, 0.0);
     glTexCoord2f(1,1);
-    glVertex3f( s/2, s/2,  s/2);
+    glVertex3f( s, s,  s);
 
 	glNormal3f(0.0, n, 0.0);
 	glTexCoord2f(0, 0);
-	glVertex3f( s/2, s/2, -s/2);
+	glVertex3f( s, s, -s);
 
 	glNormal3f(0.0, n, 0.0);
 	glTexCoord2f(0,1);
-    glVertex3f(-s/2, s/2, -s/2);
+    glVertex3f(-s, s, -s);
 
     glNormal3f(0.0, n, 0.0);
     glTexCoord2f(1,0);
-    glVertex3f(-s/2, s/2,  s/2);
-    glEnd();
+    glVertex3f(-s, s,  s);
+
 
 	//bottom
-	glBindTexture(GL_TEXTURE_2D, textures[2]);
-	glBegin(GL_QUADS);
+
 	glNormal3f(0.0, -n, 0.0);
 	glTexCoord2f(0, 0);
-	glVertex3f( s/2, -s/2,  s/2);
+	glVertex3f( s, -s,  s);
 
     glNormal3f(0.0, -n, 0.0);
     glTexCoord2f(1,1);
-    glVertex3f( s/2, -s/2, -s/2);
+    glVertex3f( s, -s, -s);
 
     glNormal3f(0.0, -n, 0.0);
     glTexCoord2f(1,0);
-    glVertex3f(-s/2, -s/2, -s/2);
+    glVertex3f(-s, -s, -s);
 
 	glNormal3f(0.0, -n, 0.0);
 	glTexCoord2f(0,1);
-    glVertex3f(-s/2, -s/2,  s/2);
-    glEnd();
+    glVertex3f(-s, -s,  s);
+
 
 	//left side
-	glBindTexture(GL_TEXTURE_2D, textures[3]);
-	glBegin(GL_QUADS);
 	glNormal3f(-n, 0.0, 0.0);
 	glTexCoord2f(0, 0);
-	glVertex3f(-s/2,  s/2,  s/2);
+	glVertex3f(-s,  s,  s);
 
     glNormal3f(-n, 0.0, 0.0);
     glTexCoord2f(1,1);
-    glVertex3f(-s/2, -s/2,  s/2);
+    glVertex3f(-s, -s,  s);
 
     glNormal3f(-n, 0.0, 0.0);
     glTexCoord2f(1,0);
-    glVertex3f(-s/2, -s/2, -s/2);
+    glVertex3f(-s, -s, -s);
 
 	glNormal3f(-n, 0.0, 0.0);
 	glTexCoord2f(0,1);
-    glVertex3f(-s/2,  s/2, -s/2);
-    glEnd();
+    glVertex3f(-s,  s, -s);
+
 
 	//right side
-	glBindTexture(GL_TEXTURE_2D, textures[4]);
-	glBegin(GL_QUADS);
 	glNormal3f(n, 0.0, 0.0);
 	glTexCoord2f(0, 0);
-	glVertex3f(s/2,  s/2, -s/2);
+	glVertex3f(s,  s, -s);
 
 	glNormal3f(n, 0.0, 0.0);
     glTexCoord2f(1,1);
-    glVertex3f(s/2, -s/2, -s/2);
+    glVertex3f(s, -s, -s);
 
     glNormal3f(n, 0.0, 0.0);
     glTexCoord2f(1,0);
-    glVertex3f(s/2, -s/2,  s/2);
+    glVertex3f(s, -s,  s);
 
 	glNormal3f(n, 0.0, 0.0);
 	glTexCoord2f(0,1);
-    glVertex3f(s/2,  s/2,  s/2);
-    glEnd();
+    glVertex3f(s,  s,  s);
+
 
 	//back side
-	glBindTexture(GL_TEXTURE_2D, textures[6]);
-	glBegin(GL_QUADS);
 	glNormal3f(0.0, 0.0, n);
 	glTexCoord2f(0, 0);
-	glVertex3f( s/2, -s/2, -s/2);
+	glVertex3f( s, -s, -s);
 
 	glNormal3f(0.0, 0.0, n);
     glTexCoord2f(1,1);
-    glVertex3f( s/2,  s/2, -s/2);
+    glVertex3f( s,  s, -s);
 
     glNormal3f(0.0, 0.0, n);
     glTexCoord2f(1,0);
-    glVertex3f(-s/2,  s/2, -s/2);
+    glVertex3f(-s,  s, -s);
 
 	glNormal3f(0.0, 0.0, n);
 	glTexCoord2f(0,1);
-    glVertex3f(-s/2, -s/2, -s/2);
+    glVertex3f(-s, -s, -s);
 	glEnd();
 }
