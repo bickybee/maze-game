@@ -1,9 +1,10 @@
 TO-DOs
-
-ESSENTIAL/ASAP TO-DOs
-- textures
-- winning (collect all the stuff = win!)
-
-LATER TO-DOs
-- HUD with points/timer/score/ etc?
-- background
+- texture the lil ball things
+- penguin feet
+- ice texture for walls (+ alpha blending?)
+- snow texture for floor (or material)
+- win screen
+- reset game
+- character select screen
+- skybox
+- sound effects!

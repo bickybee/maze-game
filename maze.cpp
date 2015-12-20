@@ -407,16 +407,17 @@ void drawPenguin(float* pos, float* rot, int frame){
 			glRotatef(-2,0,0,1);
 		}
 	}
+
 	glColor3f(0,0,1);
 	glPushMatrix();
 	glRotatef(90,1,0,0);
-	glTranslatef(0,0,-1);
+	glTranslatef(0,0,-0.5);
 	GLUquadric* qobj = gluNewQuadric();
 	gluCylinder(qobj, 0.75, 0.75, 1.5, 20, 20);
 	glPopMatrix();
 
 	glPushMatrix();
-	glTranslatef(0, 1, 0);
+	glTranslatef(0, 0.5, 0);
 	glutSolidSphere(0.75,20,20);
 
 	//translate and draw right eye
@@ -442,6 +443,26 @@ void drawPenguin(float* pos, float* rot, int frame){
 	glPopMatrix();
 
 	glPopMatrix();//head
+
+	//feet!
+	glColor3f(1,0.4,0);
+	glPushMatrix();
+	glTranslatef(0,-1,0.4);
+	if(animate&&(frame%8)<4) glRotatef(-45,1,0,0);
+	glTranslatef(0.4,0,0.4);
+	glScalef(2,0.1,3);
+	glutSolidCube(0.25);
+	glPopMatrix();
+
+	glPushMatrix();
+	glTranslatef(0,-1,0.4);
+	if(animate&&(frame%8)>4) glRotatef(-45,1,0,0);
+	glTranslatef(-0.4,0,0.4);
+	glScalef(2,0.1,3);
+	glutSolidCube(0.25);
+	glPopMatrix();
+
+
 	glPopMatrix();//body
 
 	glEnable(GL_TEXTURE_2D);
@@ -536,21 +557,24 @@ void drawSnowman(float* pos, float* rot, int frame)
 	glEnable(GL_LIGHTING);
 }
 
-void drawText(char* text, void* font, int x, int y, float r, float g, float b){
+void drawText(char* text, void* font, int posX, int posY, float scale, float r, float g, float b){
+	glPushMatrix();
 	glColor3f(r,g,b);
-	glRasterPos2i(x, y);
+	glTranslatef(posX,posY,0);
+	glScalef(scale,scale,0);
 		for (int i = 0; i < strlen(text); i++){
-			glutBitmapCharacter(font, text[i]);
+			glutStrokeCharacter(font, text[i]);
 		}
+	glPopMatrix();
 	glFlush();
 }
 
-void drawHUD(GLubyte* image, int x, int y, float w, float h){
-	glRasterPos2i(x,y); 
-	glPixelZoom(-1, 1); 
-	glDrawPixels(w,h,GL_RGB, GL_UNSIGNED_BYTE, image); 
-	glFlush(); 
-}
+// void drawHUD(GLubyte* image, int x, int y, float w, float h){
+// 	glRasterPos2i(x,y); 
+// 	glPixelZoom(-1, 1); 
+// 	glDrawPixels(w,h,GL_RGB, GL_UNSIGNED_BYTE, image); 
+// 	glFlush(); 
+// }
 
 void draw2D(){
 	glMatrixMode(GL_PROJECTION);
@@ -558,13 +582,12 @@ void draw2D(){
 	gluOrtho2D(0, 600, 0, 600);
 
 	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
 	glLoadIdentity();
 	glDisable(GL_LIGHTING);
 
 	//drawHUD(img_data, 400, 400, width, height);
-
-	drawText("hello",GLUT_BITMAP_HELVETICA_18, 50, 50, 1,0,0);
+	drawText("you win!!!",GLUT_STROKE_ROMAN, 40,100,1,1,0,0);
+	drawText("press enter to play again :^)",GLUT_STROKE_ROMAN, 30, 40,0.25,1,0,0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
@@ -604,8 +627,8 @@ void display()
 	glPopMatrix();
 
 	drawItems();
-	drawSnowman(pos, rot, frame);
-	//drawPenguin(pos, rot, frame);
+	//drawSnowman(pos, rot, frame);
+	drawPenguin(pos, rot, frame);
 	draw2D();
 	
 	//swap buffers - rendering is done to the back buffer, bring it forward to display
@@ -636,11 +659,25 @@ void init() {
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, floor_tex);*/
 }
 
+void initMaze(){
+	Initialize(maze);
+	DrawMaze(maze);
+	items = generateItems(maze,numItems,mazeScale);
+	for (int i=0; i <numItems;i++){
+		pickedUp[i] = false;
+	}
+	int* startEnd = getStartAndGoalCoords(maze);
+	pos[0] = (float)startEnd[0]*mazeScale;
+	pos[2] = (float)startEnd[1]*mazeScale;
+	eye[0] = pos[0];
+	eye[1] = 8;
+	eye[2] = pos[2] + 10;
+	drawSnowman(pos, rot, frame);
+	walls = getWalls(maze, mazeScale);
+}
+
 void idle(){
 	win = checkWin(pickedUp, numItems);
-	if (win){
-		printf("you won! \n");
-	}
 }
 
 int main(int argc, char** argv)
@@ -681,21 +718,8 @@ int main(int argc, char** argv)
 	GL_UNSIGNED_BYTE, img_data); */
 
 	//win_img = LoadPPM((char*)"ribbon.ppm", &winW, &winH, &winMAX);
-
-	Initialize(maze);
-	DrawMaze(maze);
-	items = generateItems(maze,numItems,mazeScale);
-	for (int i=0; i <numItems;i++){
-		pickedUp[i] = false;
-	}
-	int* startEnd = getStartAndGoalCoords(maze);
-	pos[0] = (float)startEnd[0]*mazeScale;
-	pos[2] = (float)startEnd[1]*mazeScale;
-	eye[0] = pos[0];
-	eye[1] = 8;
-	eye[2] = pos[2] + 10;
-	drawSnowman(pos, rot, frame);
-	walls = getWalls(maze, mazeScale);
+	init();
+	initMaze();
 
 	//start the program!
 	glutMainLoop();
