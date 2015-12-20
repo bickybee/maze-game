@@ -17,6 +17,13 @@ int width, height, MAX;
 GLuint textures[2];
 ///////////////END OF NEW STUFF//////////////
 
+//material
+float r_amb[] = {0.5,0,0, 1.0};
+float g_amb[] = {0,0.5,0,1};
+float m_dif[] = {0.5,0.5,0.5, 1.0};
+float m_spec[] = {0,0,0, 1.0};
+float shiny = 0.6*128;
+
 GLubyte* LoadPPM(const char* file, int* width, int* height, int* MAX)
 {
 	GLubyte* img;
@@ -244,15 +251,12 @@ void drawItems(int** items, bool* pickedUp, int numItems){
 	glDisable(GL_TEXTURE_2D);
 	for (int i = 0; i < numItems; i++){
 		if(!pickedUp[i]){
-			if (i%2) glColor3f(1,0,0);
-			else glColor3f(0,1,0);
 			glPushMatrix();
 			glTranslatef(items[i][0], 0.4, items[i][1]);
 			glutSolidSphere(0.2, 10, 10);
 			glPopMatrix();
 		}
 	}
-	glEnable(GL_TEXTURE_2D);
 }
 
 void drawPenguin(float* pos, float* rot, int frame, bool animate){
