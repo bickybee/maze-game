@@ -7,6 +7,8 @@
 #include <vector>
 #include "mazeGenerator.cpp"
 
+using namespace std;
+
 #define SIZE 21
 
 //maze stuff
@@ -34,8 +36,7 @@ int holdKey = 0;
 bool animate = false;
 
 //screens
-GLubyte* win_img;
-int winW, winH, winMAX;
+//GLubyte*
 
 /////////////////OLD STUFF///////////////
 /* TEXTURE */
@@ -51,7 +52,7 @@ int width, height, MAX;
 GLuint textures[2];
 ///////////////END OF NEW STUFF//////////////
 
-GLubyte* LoadPPM(char* file, int* width, int* height, int* MAX)
+GLubyte* LoadPPM(const char* file, int* width, int* height, int* MAX)
 {
 	GLubyte* img;
 	FILE *fd;
@@ -184,28 +185,36 @@ void drawCube() {
 
 	//right side
 	glNormal3f(1.0, 0.0, 0.0);
+	glTexCoord2f(0, 0);
 	glVertex3f(1.0f/2,  1.0f/2, -1.0f/2);
 
 	glNormal3f(1.0, 0.0, 0.0);
+	glTexCoord2f(0, 1);
     glVertex3f(1.0f/2,  1.0f/2,  1.0f/2);
 
     glNormal3f(1.0, 0.0, 0.0);
+    glTexCoord2f(1, 0);
     glVertex3f(1.0f/2, -1.0f/2,  1.0f/2);
 
     glNormal3f(1.0, 0.0, 0.0);
+    glTexCoord2f(1, 1);
     glVertex3f(1.0f/2, -1.0f/2, -1.0f/2);
 
 	//back side
 	glNormal3f(0.0, 0.0, 1.0);
+	glTexCoord2f(0, 0);
 	glVertex3f( 1.0f/2, -1.0f/2, -1.0f/2);
 
 	glNormal3f(0.0, 0.0, 1.0);
+	glTexCoord2f(0, 1);
     glVertex3f(-1.0f/2, -1.0f/2, -1.0f/2);
 
     glNormal3f(0.0, 0.0, 1.0);
+    glTexCoord2f(1, 0);
     glVertex3f(-1.0f/2,  1.0f/2, -1.0f/2);
 
     glNormal3f(0.0, 0.0, 1.0);
+    glTexCoord2f(1, 1);
     glVertex3f( 1.0f/2,  1.0f/2, -1.0f/2);
 
 	glEnd();
@@ -221,6 +230,7 @@ void drawXZPlane(float y_intercept, float size){
 		    	//draw quad vertices CCW
 		    	//assigning normals as well
 		    	//it's a flat x-z plane so the normal is always 1 in the y direction
+		       	glBindTexture(GL_TEXTURE_2D, textures[1]);
 		       	glNormal3f(0,1,0);
 		        glVertex3f(x, y_intercept, z);
 
@@ -280,6 +290,7 @@ void kbd(unsigned char key, int x, int y)
 	switch (key)
 	{
 		case 'q':
+		case 'Q':
 		case 27:
 			exit (0);
 			break;
@@ -476,6 +487,7 @@ void drawSnowman(float* pos, float* rot, int frame)
 	glPushMatrix();
 	glTranslatef(pos[0], pos[1], pos[2]);
 	glRotatef(rot[1], 0, 1, 0);	
+	//gluLookAt(-5,10,10,0,0,0,0,1,0);
 
 	//bouncing animation while the character is moving (movement key held down)
 	if (animate)
@@ -569,12 +581,27 @@ void drawText(char* text, void* font, int posX, int posY, float scale, float r, 
 	glFlush();
 }
 
+<<<<<<< HEAD
 // void drawHUD(GLubyte* image, int x, int y, float w, float h){
 // 	glRasterPos2i(x,y); 
 // 	glPixelZoom(-1, 1); 
 // 	glDrawPixels(w,h,GL_RGB, GL_UNSIGNED_BYTE, image); 
 // 	glFlush(); 
 // }
+
+void drawTime(void* font, int x, int y, float r, float g, float b){
+	int currentTime = glutGet(GLUT_ELAPSED_TIME)/1000;
+	//string stringTime = to_string(currentTime);
+
+	glColor3f(r,g,b);
+	glRasterPos2i(x, y);
+	glutBitmapCharacter(font, currentTime);
+/*		for (int i = 0; i < 3; i++){
+			glutBitmapCharacter(font, minSec[i]);
+			if i = 1,
+				glutBitmapCharacter(font, ':');
+		}*/
+}
 
 void draw2D(){
 	glMatrixMode(GL_PROJECTION);
@@ -585,9 +612,17 @@ void draw2D(){
 	glLoadIdentity();
 	glDisable(GL_LIGHTING);
 
+
 	//drawHUD(img_data, 400, 400, width, height);
 	drawText("you win!!!",GLUT_STROKE_ROMAN, 40,100,1,1,0,0);
 	drawText("press enter to play again :^)",GLUT_STROKE_ROMAN, 30, 40,0.25,1,0,0);
+
+	drawText("YOU WON!!!!",GLUT_BITMAP_TIMES_ROMAN_24, 200,200,1,0,0);
+
+	drawText("hello",GLUT_BITMAP_HELVETICA_18, 50, 50, 1,0,0);
+
+
+	drawTime(GLUT_BITMAP_HELVETICA_18, 100, 100, 1, 0 , 0);
 
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
@@ -617,13 +652,13 @@ void display()
 
 	glPushMatrix();
 	glScalef(mazeScale, 1, mazeScale);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	drawXZPlane(0, SIZE);
-	////////////////////NEXT LINE IS OLD STUFF/////////////////////////
+	//glBindTexture(GL_TEXTURE_2D, textures[1]);
 	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //TEXTURE_MIN_FILTER
-
-	/////////////////NEXT LINE IS NEW STUFF/////////////////////////
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	drawWalls(maze);
+	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
 
 	drawItems();
@@ -650,13 +685,13 @@ void init() {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, wall_tex);
 
-	/*floor_tex = LoadPPM("snail_a.ppm", &width, &height, &MAX);
+	floor_tex = LoadPPM("snail_a.ppm", &width, &height, &MAX);
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, floor_tex);*/
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, floor_tex);
 }
 
 void initMaze(){
@@ -685,7 +720,7 @@ int main(int argc, char** argv)
 	//glut initialization stuff:
 	// set the window size, display mode, and create the window
 	glutInit(&argc, argv);
-	glutInitWindowSize(700, 700);
+	glutInitWindowSize(800, 800);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
 	glutCreateWindow("Maze Game");
 
@@ -711,15 +746,18 @@ int main(int argc, char** argv)
 	glutSpecialFunc(special);
 	glutKeyboardUpFunc(keyUp);
 	glutIdleFunc(idle);
+	init();
 
 	/*glEnable(GL_TEXTURE_2D);
 	img_data = LoadPPM((char*)"marble.ppm", &width, &height, &MAX);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
 	GL_UNSIGNED_BYTE, img_data); */
 
+
 	//win_img = LoadPPM((char*)"ribbon.ppm", &winW, &winH, &winMAX);
 	init();
 	initMaze();
+
 
 	//start the program!
 	glutMainLoop();
