@@ -116,7 +116,7 @@ void drawCube() {
 	
 	//front
     glNormal3f(0.0, 0.0, -1.0);
-    glBindTexture(GL_TEXTURE_2D, textures[0]);
+    //glBindTexture(GL_TEXTURE_2D, textures[0]);
     glTexCoord2f(0, 0);
     glVertex3f( 1.0f/2,  1.0f/2, 1.0f/2);
 
@@ -230,17 +230,21 @@ void drawXZPlane(float y_intercept, float size){
 		    	//draw quad vertices CCW
 		    	//assigning normals as well
 		    	//it's a flat x-z plane so the normal is always 1 in the y direction
-		       	glBindTexture(GL_TEXTURE_2D, textures[1]);
+		       	//glBindTexture(GL_TEXTURE_2D, textures[1]);
 		       	glNormal3f(0,1,0);
+		       	glTexCoord2f(0, 0);
 		        glVertex3f(x, y_intercept, z);
 
 		        glNormal3f(0,1,0);
+		        glTexCoord2f(0, 1);
 		        glVertex3f(x+1, y_intercept, z);
 
 		        glNormal3f(0,1,0);
+		        glTexCoord2f(1, 0);
 		        glVertex3f(x+1, y_intercept, z+1);
 
 		        glNormal3f(0,1,0);
+		        glTexCoord2f(1, 1);
 		        glVertex3f(x, y_intercept, z+1);
       }
     }
