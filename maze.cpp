@@ -248,8 +248,7 @@ void drawXZPlane(float y_intercept, float size){
 }
 
 void drawWalls(Cell path[][SIZE]){
-	glEnable (GL_BLEND);
-	glBlendFunc (GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable (GL_POLYGON_STIPPLE);
 	for (int x = 0; x < SIZE; x++){
 		for (int z= 0; z < SIZE; z++){
 			if (!path[x][z].vacant){
@@ -268,7 +267,7 @@ void drawWalls(Cell path[][SIZE]){
 			}
 		}
 	}
-	glDisable(GL_BLEND);
+	glDisable(GL_POLYGON_STIPPLE);
 	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //TEXTURE_MIN_FILTER
 	//glutSolidTeapot(1);
 
@@ -284,74 +283,6 @@ void drawItems(){
 			glPopMatrix();
 		}
 	}
-}
-
-void kbd(unsigned char key, int x, int y)
-{
-	if (holdKey>1) animate = true;
-
-	switch (key)
-	{
-		case 'q':
-		case 'Q':
-		case 27:
-			exit (0);
-			break;
-
-		case 'a':
-		case 'A':
-			if(!wallIntersection(walls, pos[0]-0.25, pos[2]))
-				{pos[0] -= 0.25; eye[0] -= 0.25;}
-			rot[1] = -90;
-			holdKey++;
-			if (animate) frame++;
-			pickedUp = itemIntersection(items, numItems, pickedUp, pos[0], pos[2]);
-			break;
-
-		case 'w':
-		case 'W':
-			if(!wallIntersection(walls, pos[0], pos[2]-0.25))
-				{pos[2] -= 0.25; eye[2] -=0.25;}
-			rot[1] = 180;
-			holdKey++;
-			if (animate) frame++;
-			pickedUp = itemIntersection(items, numItems, pickedUp, pos[0], pos[2]);
-			break;
-
-		case 'd':
-		case 'D':
-			if(!wallIntersection(walls, pos[0]+0.25, pos[2]))
-				{pos[0]+=0.25; eye[0] += 0.25;}
-			rot[1] = 90;
-			holdKey++;
-			if (animate) frame++;
-			pickedUp = itemIntersection(items, numItems, pickedUp, pos[0], pos[2]);
-			break;
-
-		case 's':
-		case 'S':
-			if(!wallIntersection(walls, pos[0], pos[2]+0.25))
-				{pos[2] += 0.25; eye[2] += 0.25;}
-			rot[1] = 0;
-			holdKey++;
-			if (animate) frame++;
-			pickedUp = itemIntersection(items, numItems, pickedUp, pos[0], pos[2]);
-			break;
-
-		case 'y':
-		case 'Y':
-			if(headRot[1] < 85)
-				headRot[1] += 1;
-			break;
-
-		case 'u':
-		case 'U':
-			if(headRot[1] > -85)
-				headRot[1] -= 1;
-			break;
-			
-	}
-	glutPostRedisplay();
 }
 
 //resets the vars used to check if a key is being held down (for walk-animation)
@@ -616,8 +547,10 @@ void draw2D(){
 
 
 	//drawHUD(img_data, 400, 400, width, height);
-	drawText("you win!!!",GLUT_STROKE_ROMAN, 40,100,1,1,0,0);
-	drawText("press enter to play again :^)",GLUT_STROKE_ROMAN, 30, 40,0.25,1,0,0);
+	if (win){
+		drawText("you win!!!",GLUT_STROKE_ROMAN, 40,100,1,1,0,0);
+		drawText("press enter to play again :^)",GLUT_STROKE_ROMAN, 30, 40,0.25,1,0,0);
+	}
 
 	drawTime(GLUT_BITMAP_HELVETICA_18, 100, 100, 1, 0 , 0);
 
@@ -659,8 +592,8 @@ void display()
 	glPopMatrix();
 
 	drawItems();
-	//drawSnowman(pos, rot, frame);
-	drawPenguin(pos, rot, frame);
+	drawSnowman(pos, rot, frame);
+	//drawPenguin(pos, rot, frame);
 	draw2D();
 	
 	//swap buffers - rendering is done to the back buffer, bring it forward to display
@@ -706,6 +639,77 @@ void initMaze(){
 	eye[2] = pos[2] + 10;
 	drawSnowman(pos, rot, frame);
 	walls = getWalls(maze, mazeScale);
+}
+
+void kbd(unsigned char key, int x, int y)
+{
+	if (holdKey>1) animate = true;
+
+	switch (key)
+	{
+		case 'q':
+		case 'Q':
+		case 27:
+			exit (0);
+			break;
+
+		case 'a':
+		case 'A':
+			if(!wallIntersection(walls, pos[0]-0.25, pos[2]))
+				{pos[0] -= 0.25; eye[0] -= 0.25;}
+			rot[1] = -90;
+			holdKey++;
+			if (animate) frame++;
+			pickedUp = itemIntersection(items, numItems, pickedUp, pos[0], pos[2]);
+			break;
+
+		case 'w':
+		case 'W':
+			if(!wallIntersection(walls, pos[0], pos[2]-0.25))
+				{pos[2] -= 0.25; eye[2] -=0.25;}
+			rot[1] = 180;
+			holdKey++;
+			if (animate) frame++;
+			pickedUp = itemIntersection(items, numItems, pickedUp, pos[0], pos[2]);
+			break;
+
+		case 'd':
+		case 'D':
+			if(!wallIntersection(walls, pos[0]+0.25, pos[2]))
+				{pos[0]+=0.25; eye[0] += 0.25;}
+			rot[1] = 90;
+			holdKey++;
+			if (animate) frame++;
+			pickedUp = itemIntersection(items, numItems, pickedUp, pos[0], pos[2]);
+			break;
+
+		case 's':
+		case 'S':
+			if(!wallIntersection(walls, pos[0], pos[2]+0.25))
+				{pos[2] += 0.25; eye[2] += 0.25;}
+			rot[1] = 0;
+			holdKey++;
+			if (animate) frame++;
+			pickedUp = itemIntersection(items, numItems, pickedUp, pos[0], pos[2]);
+			break;
+
+		case 'y':
+		case 'Y':
+			if(headRot[1] < 85)
+				headRot[1] += 1;
+			break;
+
+		case 'u':
+		case 'U':
+			if(headRot[1] > -85)
+				headRot[1] -= 1;
+			break;
+		case 13: //enter
+			if (win) initMaze();
+			break;
+			
+	}
+	glutPostRedisplay();
 }
 
 void idle(){

@@ -1,10 +1,8 @@
 TO-DOs
 - texture the lil ball things
-- penguin feet
 - ice texture for walls (+ alpha blending?)
 - snow texture for floor (or material)
-- win screen
-- reset game
+- proper win screen
 - character select screen
 - skybox
 - sound effects!
