@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <windows.h>
+#include <mmsystem.h>
 #include <stdio.h>
 #include <gl/glut.h>
 #include <gl/gl.h>
@@ -24,7 +25,7 @@ bool win = false;
 
 //lighting
 float light_pos0[] = {SIZE,30,SIZE,1.0};
-float amb0[4] = {0.5,0.5,0.5,1};
+float amb0[4] = {1,1,1,1};
 float diff0[4] = {1,1,1, 1};
 float spec0[4] = {1, 1, 1, 1};
 
@@ -36,6 +37,7 @@ int holdKey = 0;
 bool animate = false;
 int numSnows = 500;
 float** snows = new float*[numSnows];
+int character = 0;
 
 //screens
 //GLubyte*
@@ -55,6 +57,10 @@ void display()
 	glLoadIdentity();
 	gluLookAt(eye[0],eye[1],eye[2],pos[0],pos[1],pos[2],0,1,0);
 
+	glColor3f(1,1,1);
+	//glBindTexture(GL_TEXTURE_2D,textures[1]);
+	drawSkyBox(100,1);
+
 	glEnable(GL_LIGHTING);
 	glEnable(GL_LIGHT0);
 
@@ -71,12 +77,12 @@ void display()
 	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //TEXTURE_MIN_FILTER
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	drawWalls(maze);
-	glDisable(GL_TEXTURE_2D);
 	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
 
 	drawItems(items, pickedUp, numItems);
-	drawSnowman(pos, rot, frame, animate);
-	//drawPenguin(pos, rot, frame);
+	//drawSnowman(pos, rot, frame, animate);
+	drawPenguin(pos, rot, frame, animate);
 	updateSnow(snows, numSnows, SIZE*2, SIZE*2, SIZE*2);
 	drawSnow(snows, numSnows);
 	draw2D(win);
@@ -94,9 +100,9 @@ void idle(){
 
 void init() {
 	glEnable(GL_TEXTURE_2D);
-	glGenTextures(2, textures);
+	glGenTextures(3, textures);
 	//load wall texture
-	wall_tex = LoadPPM("ice1.ppm", &width, &height, &MAX);
+	wall_tex = LoadPPM("ice5.ppm", &width, &height, &MAX);
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
@@ -104,13 +110,54 @@ void init() {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, wall_tex);
 
-	floor_tex = LoadPPM("snow2.ppm", &width, &height, &MAX);
+	floor_tex = LoadPPM("snow3.ppm", &width, &height, &MAX);
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, floor_tex);
+
+	topT = LoadPPM("top.ppm", &width, &height, &MAX);
+	glBindTexture(GL_TEXTURE_2D, textures[2]);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, topT);
+
+	leftT = LoadPPM("left.ppm", &width, &height, &MAX);
+	glBindTexture(GL_TEXTURE_2D, textures[3]);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, leftT);
+
+	rightT = LoadPPM("right.ppm", &width, &height, &MAX);
+	glBindTexture(GL_TEXTURE_2D, textures[4]);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, rightT);
+
+	frontT = LoadPPM("front.ppm", &width, &height, &MAX);
+	glBindTexture(GL_TEXTURE_2D, textures[5]);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, frontT);
+
+	backT = LoadPPM("back.ppm", &width, &height, &MAX);
+	glBindTexture(GL_TEXTURE_2D, textures[6]);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,GL_CLAMP);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, backT);
+
 }
 
 void initMaze(){
@@ -126,9 +173,12 @@ void initMaze(){
 	eye[0] = pos[0];
 	eye[1] = 8;
 	eye[2] = pos[2] + 15;
-	drawSnowman(pos, rot, frame, animate);
 	initializeSnow(snows, numSnows, SIZE*2, SIZE*2, SIZE*2);
 	walls = getWalls(maze, mazeScale);
+}
+
+void startScreen(){
+
 }
 
 void kbd(unsigned char key, int x, int y)
@@ -233,7 +283,7 @@ void special(int key, int x, int y){
 }
 
 int main(int argc, char** argv)
-{
+{	//PlaySound("starwars.wav", NULL, SND_ASYNC|SND_FILENAME|SND_LOOP);
 	//glut initialization stuff:
 	// set the window size, display mode, and create the window
 	glutInit(&argc, argv);
