@@ -96,7 +96,7 @@ void init() {
 	glEnable(GL_TEXTURE_2D);
 	glGenTextures(2, textures);
 	//load wall texture
-	wall_tex = LoadPPM("marble.ppm", &width, &height, &MAX);
+	wall_tex = LoadPPM("ice1.ppm", &width, &height, &MAX);
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
@@ -104,7 +104,7 @@ void init() {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, wall_tex);
 
-	floor_tex = LoadPPM("snail_a.ppm", &width, &height, &MAX);
+	floor_tex = LoadPPM("snow2.ppm", &width, &height, &MAX);
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
