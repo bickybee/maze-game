@@ -1,8 +1,9 @@
 TO-DOs
-- texture the lil ball things
+- color the lil ball things
 - ice texture for walls (+ alpha blending?)
 - snow texture for floor (or material)
 - proper win screen
-- character select screen
+- character select screen (+ present character?)
 - skybox
 - sound effects!
+- mini-map or pickup-counter

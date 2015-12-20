@@ -426,10 +426,20 @@ void drawSnowman(float* pos, float* rot, int frame, bool animate)
 
 	//hat!
 	glPushMatrix();
-	glTranslatef(0,0.5,0);
-	glColor3f(0,0,0);
-	glutSolidCube(0.2);
+	glRotatef(-30,1,0,0); //rotate around head
+	glTranslatef(0,0.3,0);
+
+	glPushMatrix();
+	glRotatef(-90,1,0,0); //rotate upright
+	glColor3f(1,0,0);
+	glutSolidCone(0.3,0.8,30,30);
 	glPopMatrix();
+	glPushMatrix();
+	glTranslatef(0,0.8,0);
+	glColor3f(1,1,1);
+	glutSolidSphere(0.1,10,10);
+	glPopMatrix();
+	glPopMatrix();//hat
 
 	glPopMatrix();//body
 
