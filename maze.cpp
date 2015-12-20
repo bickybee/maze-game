@@ -252,7 +252,6 @@ void drawXZPlane(float y_intercept, float size){
 }
 
 void drawWalls(Cell path[][SIZE]){
-	glEnable (GL_POLYGON_STIPPLE);
 	for (int x = 0; x < SIZE; x++){
 		for (int z= 0; z < SIZE; z++){
 			if (!path[x][z].vacant){
@@ -271,22 +270,24 @@ void drawWalls(Cell path[][SIZE]){
 			}
 		}
 	}
-	glDisable(GL_POLYGON_STIPPLE);
 	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //TEXTURE_MIN_FILTER
 	//glutSolidTeapot(1);
 
 }
 
 void drawItems(){
+	glDisable(GL_TEXTURE_2D);
 	for (int i = 0; i < numItems; i++){
 		if(!pickedUp[i]){
-			glColor3f(1,0,0);
+			if (i%2) glColor3f(1,0,0);
+			else glColor3f(0,1,0);
 			glPushMatrix();
 			glTranslatef(items[i][0], 0.4, items[i][1]);
 			glutSolidSphere(0.2, 10, 10);
 			glPopMatrix();
 		}
 	}
+	glEnable(GL_TEXTURE_2D);
 }
 
 //resets the vars used to check if a key is being held down (for walk-animation)
