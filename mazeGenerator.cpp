@@ -1,3 +1,6 @@
+//WINTER MAZE
+//maze generating and other back-end mechanics
+
 #include <iostream>
 #include <time.h>
 #include <windows.h>
@@ -30,21 +33,6 @@ void DrawMaze(Cell Level[][SIZE], int &positionX, int &positionY, int &goalX, in
 int* getStartAndGoalCoords(Cell Level[][SIZE]);
 int** generateItems(Cell level[][SIZE], int numItems, int scale);
 
-
-// int main() {
-// 	Cell Level[SIZE][SIZE];
-// 	int positionX = 0;
-// 	int positionY = 0;
-// 	int goalX = 0;
-// 	int goalY = 0;
-
-// 	Initialize(Level);
-// 	Redraw(Level); //DISPLAY
-// 	DrawMaze(Level, positionX, positionY, goalX, goalY);
-
-// 	return 0;
-// }
-
 //set up maze
 void Initialize(Cell Level[][SIZE]) {
 	for(int i = 0; i < SIZE; i++) {
@@ -70,6 +58,7 @@ void Initialize(Cell Level[][SIZE]) {
 	}
 }
 
+//used for drawing maze to the console
 void ClearScreen() {
 	HANDLE hOut;
 	COORD Position;
@@ -79,6 +68,7 @@ void ClearScreen() {
 	SetConsoleCursorPosition(hOut, Position);
 }
 
+//used for drawing maze to the console
 void Redraw(Cell Level[][SIZE]) {
 	for(int i = 0; i < SIZE; i++) {
 		cout << endl;
@@ -222,6 +212,7 @@ void DrawMaze(Cell Level[][SIZE]) {
 	//cout << endl << "\t	Complete!" << endl;
 }
 
+//return coordinates of start and end cell
 int* getStartAndGoalCoords(Cell Level[][SIZE]){
 	int* coords = new int[4];
 
@@ -240,6 +231,7 @@ int* getStartAndGoalCoords(Cell Level[][SIZE]){
 	return coords;
 }
 
+//return list of wall coordinates, in "world coordinates" (according to mazeScale)
 vector<int*>* getWalls(Cell Level[][SIZE], int mazeScale){
 	vector<int*>* walls = new vector<int*>;
 
@@ -255,6 +247,7 @@ vector<int*>* getWalls(Cell Level[][SIZE], int mazeScale){
 	}
 }
 
+//check if the point x,y intersects with a wall
 bool wallIntersection(vector<int*>* walls, float x, float z){
 	for (int i = 0; i < walls->size(); i++){
 		float wallX = (float)walls->at(i)[0];
@@ -264,7 +257,8 @@ bool wallIntersection(vector<int*>* walls, float x, float z){
 	return false;
 }
 
-//random items in maze
+//generate random items in maze, where there aren't walls
+//return coordinates
 int** generateItems(Cell level[][SIZE], int numItems, int scale){
 	srand((unsigned)time(NULL));
 	int** locations = new int*[numItems];
@@ -285,6 +279,7 @@ int** generateItems(Cell level[][SIZE], int numItems, int scale){
 	return locations;
 }
 
+//check if the point x,y, intersects with an item, update bool array accordingly
 bool* itemIntersection(int** items, int numItems,bool* pickedUp, float x, float z){
 	for (int i = 0; i < numItems; i++){
 		if (!pickedUp[i]){
@@ -297,6 +292,7 @@ bool* itemIntersection(int** items, int numItems,bool* pickedUp, float x, float 
 	return pickedUp;
 }
 
+//returns number of items picked up
 int itemsPickedUp(bool* items, int numItems){
 	int pickedUp = 0;
 	for (int i = 0; i < numItems; i++){

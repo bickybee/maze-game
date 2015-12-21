@@ -1,3 +1,6 @@
+//WINTER MAZE
+//most of the functions used by display() to draw to the screen
+
 #include <stdlib.h>
 #include <windows.h>
 #include <stdio.h>
@@ -7,24 +10,16 @@
 #include <vector>
 
 using namespace std;
-
 #define SIZE 21
 
-/////////////////NEW STUFF///////////////
+//texturing
 GLubyte* wall_tex;
 GLubyte* floor_tex;
 GLubyte* sky;
 int width, height, MAX;
 GLuint textures[3];
-///////////////END OF NEW STUFF//////////////
 
-//material
-float r_amb[] = {0.5,0,0, 1.0};
-float g_amb[] = {0,0.5,0,1};
-float m_dif[] = {0.5,0.5,0.5, 1.0};
-float m_spec[] = {0,0,0, 1.0};
-float shiny = 0.6*128;
-
+//texture loader, from tutorial!
 GLubyte* LoadPPM(const char* file, int* width, int* height, int* MAX)
 {
 	GLubyte* img;
@@ -84,116 +79,116 @@ GLubyte* LoadPPM(const char* file, int* width, int* height, int* MAX)
 	return img;
 }
 
-void drawCube(float s, float n) {
+void drawCube(float s) {
 	glBegin(GL_QUADS);
 	
-	//front
-    glNormal3f(0.0, 0.0, -n);
-    //glBindTexture(GL_TEXTURE_2D, textures[0]);
+	//fro1t
+    glNormal3f(0.0, 0.0, -1);
+    //glBi1dTexture(GL_TEXTURE_2D, textures[0]);
     glTexCoord2f(0, 0);
     glVertex3f( s/2,  s/2, s/2);
 
-    glNormal3f(0.0, 0.0, -n);
+    glNormal3f(0.0, 0.0, -1);
     glTexCoord2f(0,1);
     glVertex3f(-s/2,  s/2, s/2);
 
-    glNormal3f(0.0, 0.0, -n);
+    glNormal3f(0.0, 0.0, -1);
     glTexCoord2f(1,0);
     glVertex3f(-s/2, -s/2, s/2);
 
-    glNormal3f(0.0, 0.0, -n);
+    glNormal3f(0.0, 0.0, -1);
     glTexCoord2f(1,1);
     glVertex3f( s/2, -s/2, s/2);
     
 	//top
-	glNormal3f(0.0, n, 0.0);
+	glNormal3f(0.0, 1, 0.0);
 	glTexCoord2f(0, 0);
 	glVertex3f( s/2, s/2, -s/2);
 
-	glNormal3f(0.0, n, 0.0);
+	glNormal3f(0.0, 1, 0.0);
 	glTexCoord2f(0,1);
     glVertex3f(-s/2, s/2, -s/2);
 
-    glNormal3f(0.0, n, 0.0);
+    glNormal3f(0.0, 1, 0.0);
     glTexCoord2f(1,0);
     glVertex3f(-s/2, s/2,  s/2);
 
-    glNormal3f(0.0, n, 0.0);
+    glNormal3f(0.0, 1, 0.0);
     glTexCoord2f(1,1);
     glVertex3f( s/2, s/2,  s/2);
 
 	//bottom
-	glNormal3f(0.0, -n, 0.0);
+	glNormal3f(0.0, -1, 0.0);
 	glTexCoord2f(0, 0);
 	glVertex3f( s/2, -s/2,  s/2);
 
-	glNormal3f(0.0, -n, 0.0);
+	glNormal3f(0.0, -1, 0.0);
 	glTexCoord2f(0,1);
     glVertex3f(-s/2, -s/2,  s/2);
 
-    glNormal3f(0.0, -n, 0.0);
+    glNormal3f(0.0, -1, 0.0);
     glTexCoord2f(1,0);
     glVertex3f(-s/2, -s/2, -s/2);
 
-    glNormal3f(0.0, -n, 0.0);
+    glNormal3f(0.0, -1, 0.0);
     glTexCoord2f(1,1);
     glVertex3f( s/2, -s/2, -s/2);
 
 	//left side
-	glNormal3f(-n, 0.0, 0.0);
+	glNormal3f(-1, 0.0, 0.0);
 	glTexCoord2f(0, 0);
 	glVertex3f(-s/2,  s/2,  s/2);
 
-	glNormal3f(-n, 0.0, 0.0);
+	glNormal3f(-1, 0.0, 0.0);
 	glTexCoord2f(0,1);
     glVertex3f(-s/2,  s/2, -s/2);
 
-    glNormal3f(-n, 0.0, 0.0);
+    glNormal3f(-1, 0.0, 0.0);
     glTexCoord2f(1,0);
     glVertex3f(-s/2, -s/2, -s/2);
 
-    glNormal3f(-n, 0.0, 0.0);
+    glNormal3f(-1, 0.0, 0.0);
     glTexCoord2f(1,1);
     glVertex3f(-s/2, -s/2,  s/2);
 
 	//right side
-	glNormal3f(n, 0.0, 0.0);
+	glNormal3f(1, 0.0, 0.0);
 	glTexCoord2f(0, 0);
 	glVertex3f(s/2,  s/2, -s/2);
 
-	glNormal3f(n, 0.0, 0.0);
+	glNormal3f(1, 0.0, 0.0);
 	glTexCoord2f(0,1);
     glVertex3f(s/2,  s/2,  s/2);
 
-    glNormal3f(n, 0.0, 0.0);
+    glNormal3f(1, 0.0, 0.0);
     glTexCoord2f(1,0);
     glVertex3f(s/2, -s/2,  s/2);
 
-    glNormal3f(n, 0.0, 0.0);
+    glNormal3f(1, 0.0, 0.0);
     glTexCoord2f(1,1);
     glVertex3f(s/2, -s/2, -s/2);
 
 	//back side
-	glNormal3f(0.0, 0.0, n);
+	glNormal3f(0.0, 0.0, 1);
 	glTexCoord2f(0, 0);
 	glVertex3f( s/2, -s/2, -s/2);
 
-	glNormal3f(0.0, 0.0, n);
+	glNormal3f(0.0, 0.0, 1);
 	glTexCoord2f(0,1);
     glVertex3f(-s/2, -s/2, -s/2);
 
-    glNormal3f(0.0, 0.0, n);
+    glNormal3f(0.0, 0.0, 1);
     glTexCoord2f(1,0);
     glVertex3f(-s/2,  s/2, -s/2);
 
-    glNormal3f(0.0, 0.0, n);
+    glNormal3f(0.0, 0.0, 1);
     glTexCoord2f(1,1);
     glVertex3f( s/2,  s/2, -s/2);
 
 	glEnd();
 }
 
-
+//draw the plane!
 void drawXZPlane(float y_intercept, float size){
 	glColor3f(1,1,1);
 	glLineWidth(1);
@@ -203,7 +198,6 @@ void drawXZPlane(float y_intercept, float size){
 		    	//draw quad vertices CCW
 		    	//assigning normals as well
 		    	//it's a flat x-z plane so the normal is always 1 in the y direction
-		       	//glBindTexture(GL_TEXTURE_2D, textures[1]);
 		       	glNormal3f(0,1,0);
 		       	glTexCoord2f(0, 0);
 		        glVertex3f(x, y_intercept, z);
@@ -224,38 +218,32 @@ void drawXZPlane(float y_intercept, float size){
     glEnd();
 }
 
+//draw walls!
 void drawWalls(Cell path[][SIZE]){
 	for (int x = 0; x < SIZE; x++){
 		for (int z= 0; z < SIZE; z++){
 			if (!path[x][z].vacant){
-				/*glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-				glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //TEXTURE_MIN_FILTER*/
-				
 				glColor3f(1,1,1);
 				glPushMatrix();
 				glTranslatef(x, 0, z);
 				glScalef(1, 1, 1);
-				drawCube(1, 1);
-				//glutSolidCube(1);
+				drawCube(1);
 				glPopMatrix();
 			}
 		}
 	}
-	//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //TEXTURE_MIN_FILTER
-	//glutSolidTeapot(1);
 
 }
 
+//draw items!
 void drawItems(int** items, bool* pickedUp, int numItems){
 	glDisable(GL_LIGHTING);
 	for (int i = 0; i < numItems; i++){
 		if(!pickedUp[i]){
 			glPushMatrix();
 			glTranslatef(items[i][0], 0.4, items[i][1]);
-			if (i%2) glColor3f(1,0,0);
-			else glColor3f(0,0.7,0.1);
+			if (i%2) glColor3f(1,0,0);//red
+			else glColor3f(0,0.7,0.1);//green
 			glutSolidSphere(0.2, 30, 30);
 			glRotatef(30,0,0,1);
 			glTranslatef(0,0.2,0);
@@ -267,6 +255,7 @@ void drawItems(int** items, bool* pickedUp, int numItems){
 	glEnable(GL_LIGHTING);
 }
 
+//penguin character!
 void drawPenguin(float* pos, float* rot, int frame, bool animate){
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
@@ -356,13 +345,13 @@ void drawPenguin(float* pos, float* rot, int frame, bool animate){
 
 }
 
+//snowman character! modified from tutorial
 void drawSnowman(float* pos, float* rot, int frame, bool animate)
 {	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 	glPushMatrix();
 	glTranslatef(pos[0], pos[1], pos[2]);
 	glRotatef(rot[1], 0, 1, 0);	
-	//gluLookAt(-5,10,10,0,0,0,0,1,0);
 
 	//bouncing animation while the character is moving (movement key held down)
 	if (animate)
@@ -460,7 +449,8 @@ void drawSnowman(float* pos, float* rot, int frame, bool animate)
 	glEnable(GL_LIGHTING);
 }
 
-void drawText(const char* text, void* font, int posX, int posY, float scale, float r, float g, float b){
+//draw text at given position with given font, size, and color using stroke font
+void drawText(char* text, void* font, int posX, int posY, float scale, float r, float g, float b){
 	glPushMatrix();
 	glColor3f(r,g,b);
 	glTranslatef(posX,posY,0);
@@ -472,13 +462,7 @@ void drawText(const char* text, void* font, int posX, int posY, float scale, flo
 	glFlush();
 }
 
-// void drawHUD(GLubyte* image, int x, int y, float w, float h){
-// 	glRasterPos2i(x,y); 
-// 	glPixelZoom(-1, 1); 
-// 	glDrawPixels(w,h,GL_RGB, GL_UNSIGNED_BYTE, image); 
-// 	glFlush(); 
-// }
-
+//draw the current time using bitmap font
 void drawTime(void* font, int x, int y, float r, float g, float b, int seconds){
 	int digits[] = {48,48,48};
 	if (seconds<10) digits[2] += seconds;
@@ -500,7 +484,9 @@ void drawTime(void* font, int x, int y, float r, float g, float b, int seconds){
 		}
 }
 
-void draw2D(bool win, bool playing, int seconds, int pickedUp){
+//sets up matrices for 2D drawing
+//calls 2D drawing functions (didn't end up putting in more than just fonts)
+void draw2D(bool win, int seconds, int pickedUp){
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluOrtho2D(0, 600, 0, 600);
@@ -513,6 +499,8 @@ void draw2D(bool win, bool playing, int seconds, int pickedUp){
 	drawTime(GLUT_BITMAP_HELVETICA_18, 20, 20, 1, 0 , 0, seconds);
 	if (win){
 		drawText("you win!!!",GLUT_STROKE_ROMAN, 40,100,1,1,0,0);
+		drawText("you win!!!",GLUT_STROKE_ROMAN, 45,105,1,0,0,1);
+		drawText("you win!!!",GLUT_STROKE_ROMAN, 35,95,1,0,1,0);
 		drawText("press enter to play again :^)",GLUT_STROKE_ROMAN, 30, 40,0.25,1,0,0);
 	}
 
@@ -521,8 +509,8 @@ void draw2D(bool win, bool playing, int seconds, int pickedUp){
 		count[0] = pickedUp+48;
 		count[1] = '/';
 		count[2] = 57;
-		const char* countC = count;
-		drawText(countC,GLUT_STROKE_ROMAN, 60, 20, 0.1, 1, 0, 0);
+		count[3] = '\0';
+		drawText(count,GLUT_STROKE_ROMAN, 60, 20, 0.1, 1, 0, 0);
 	}
 
 	glMatrixMode(GL_MODELVIEW);
@@ -531,10 +519,12 @@ void draw2D(bool win, bool playing, int seconds, int pickedUp){
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glLoadIdentity();
-	gluPerspective(45, 1, 1, 100);
+	gluPerspective(45,1,0.1,500);
 	
 }
 
+//initialize random locations for snow
+//within x y z bounds
 void initializeSnow(float** snows, int numSnows, int x, int y, int z){
 	for (int i = 0; i < numSnows; i++){
 		float* coords = new float[3];
@@ -545,6 +535,8 @@ void initializeSnow(float** snows, int numSnows, int x, int y, int z){
 	}
 }
 
+//update snow that's fallen to the ground to start at the top again
+//according to x y z bounds
 void updateSnow(float** snows, int numSnows, int x, int y, int z){
 	for (int i = 0; i < numSnows; i++){
 		snows[i][1] = snows[i][1] - 0.1;
@@ -556,6 +548,7 @@ void updateSnow(float** snows, int numSnows, int x, int y, int z){
 	}
 }
 
+//draw all the snow!
 void drawSnow(float** snows, int numSnows){
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
@@ -570,6 +563,7 @@ void drawSnow(float** snows, int numSnows){
 	glEnable(GL_TEXTURE_2D);
 }
 
+//draw the skybox
 void drawSkyBox(float s, float n){
 	
 	//front

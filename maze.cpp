@@ -1,3 +1,7 @@
+// WINTER MAZE 
+// Final project for COMP SCI 3GC3
+// Vicky Bilbily, Lucas Bongers, Daniel Cefaratti
+
 #include <stdlib.h>
 #include <windows.h>
 #include <mmsystem.h>
@@ -10,10 +14,9 @@
 #include "drawing.cpp"
 
 using namespace std;
-
 #define SIZE 21
 
-//maze stuff
+//maze and game vars
 int mazeScale = 2;
 vector<int*>* walls = new vector<int*>;
 Cell maze[SIZE][SIZE];
@@ -31,7 +34,7 @@ float amb0[4] = {1,1,1,1};
 float diff0[4] = {1,1,1, 1};
 float spec0[4] = {1, 1, 1, 1};
 
-//animation
+//character
 float pos[] = {5,1,5};
 float rot[] = {0, 0, 0};
 int frame = 0;
@@ -41,88 +44,80 @@ int numSnows = 500;
 float** snows = new float*[numSnows];
 int character = 0;
 
-//screens
-bool playing = false;
-
-/////////////////OLD STUFF///////////////
-/* TEXTURE */
-/*GLubyte* image;
-GLubyte* img_data;
-int width, height, MAX;*/
-///////////////END OF OLD STUFF/////////////
-
 void display()
 {
-	//clear the screen
+	//clear
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-	// if (!playing){
-	// 	gluLookAt(10,0,0,0,0,0,0,1,0);
-	// 	pos[]
-	// 	drawSnowman()
-	// }
+	//camera
+	gluLookAt(eye[0],eye[1],eye[2],pos[0],pos[1],pos[2],0,1,0);
 
-	// else{
-		gluLookAt(eye[0],eye[1],eye[2],pos[0],pos[1],pos[2],0,1,0);
+	//skybox
+	glColor3f(1,1,1);
+	glPushMatrix();
+	glTranslatef(SIZE,25,SIZE);
+	glRotatef(90,1,0,0);
+	drawSkyBox(50,1);
+	glPopMatrix();
 
-		glColor3f(1,1,1);
-		//glBindTexture(GL_TEXTURE_2D,textures[1]);
-		glPushMatrix();
-		glTranslatef(SIZE,0,SIZE);
-		glScalef(1,0.25,1);
-		drawSkyBox(50,1);
-		glPopMatrix();
+	//lighting
+	glEnable(GL_LIGHTING);
+	glEnable(GL_LIGHT0);
+	glLightfv(GL_LIGHT0,GL_POSITION,light_pos0);
+	glLightfv(GL_LIGHT0, GL_AMBIENT, amb0);
+	glLightfv(GL_LIGHT0, GL_DIFFUSE, diff0);
+	glLightfv(GL_LIGHT0, GL_SPECULAR, spec0);
 
-		glEnable(GL_LIGHTING);
-		glEnable(GL_LIGHT0);
+	//plane
+	glPushMatrix();
+	glScalef(mazeScale, 1, mazeScale);
+	glBindTexture(GL_TEXTURE_2D, textures[1]);
+	drawXZPlane(0, SIZE);
 
-		glLightfv(GL_LIGHT0,GL_POSITION,light_pos0);
-		glLightfv(GL_LIGHT0, GL_AMBIENT, amb0);
-		glLightfv(GL_LIGHT0, GL_DIFFUSE, diff0);
-		glLightfv(GL_LIGHT0, GL_SPECULAR, spec0);
+	//maze walls
+	glBindTexture(GL_TEXTURE_2D, textures[0]);
+	drawWalls(maze);
+	glPopMatrix();
+	glDisable(GL_TEXTURE_2D);
 
-		glPushMatrix();
-		glScalef(mazeScale, 1, mazeScale);
-		glBindTexture(GL_TEXTURE_2D, textures[1]);
-		drawXZPlane(0, SIZE);
-		//glBindTexture(GL_TEXTURE_2D, textures[1]);
-		//glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR); //TEXTURE_MIN_FILTER
-		glBindTexture(GL_TEXTURE_2D, textures[0]);
-		drawWalls(maze);
-		glPopMatrix();
-		glDisable(GL_TEXTURE_2D);
+	//items
+	drawItems(items, pickedUp, numItems);
 
-		drawItems(items, pickedUp, numItems);
-		if (character%2==1) drawSnowman(pos, rot, frame, animate);
-		else drawPenguin(pos, rot, frame, animate);
-		updateSnow(snows, numSnows, SIZE*2, SIZE*2, SIZE*2);
-		drawSnow(snows, numSnows);
-		draw2D(win, playing, seconds, numPickedUp);
-	//}
-	
-	//swap buffers - rendering is done to the back buffer, bring it forward to display
+	//character
+	if (character%2==1) drawSnowman(pos, rot, frame, animate);
+	else drawPenguin(pos, rot, frame, animate);
+
+	//snow
+	updateSnow(snows, numSnows, SIZE*2, SIZE*2, SIZE*2);
+	drawSnow(snows, numSnows);
+
+	//bitmaps
+	draw2D(win, seconds, numPickedUp);
+
+	//display!
 	glutSwapBuffers();
-
-	//force a redisplay, to keep the animation running
 	glutPostRedisplay();
 }
 
+//constantly check for wins
 void idle(){
 	numPickedUp = itemsPickedUp(pickedUp, numItems);
 	win = numPickedUp==numItems;
 }
 
+//update the timer
 void timer(int value){
 	if (!win) seconds++;
 	 glutTimerFunc(1000, timer, 0);
 }
 
-void init() {
+//load textures
+void initTextures() {
 	glEnable(GL_TEXTURE_2D);
 	glGenTextures(3, textures);
-	//load wall texture
+	//wall texture
 	wall_tex = LoadPPM("ice5.ppm", &width, &height, &MAX);
 	glBindTexture(GL_TEXTURE_2D, textures[0]);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -130,7 +125,7 @@ void init() {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, wall_tex);
-
+	//plane texture
 	floor_tex = LoadPPM("snow3.ppm", &width, &height, &MAX);
 	glBindTexture(GL_TEXTURE_2D, textures[1]);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -138,7 +133,7 @@ void init() {
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, floor_tex);
-
+	//skybox texture
 	sky = LoadPPM("sky2.ppm", &width, &height, &MAX);
 	glBindTexture(GL_TEXTURE_2D, textures[2]);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,GL_REPEAT);
@@ -149,6 +144,9 @@ void init() {
 
 }
 
+//set up maze using back-end algorithm
+//initialize character and camera accordingly
+//also initialize snow here
 void initMaze(){
 	Initialize(maze);
 	DrawMaze(maze);
@@ -166,18 +164,20 @@ void initMaze(){
 	walls = getWalls(maze, mazeScale);
 }
 
-void kbd(unsigned char key, int x, int y)
-{
+void kbd(unsigned char key, int x, int y){
 	if (holdKey>1) animate = true;
 
-	switch (key)
-	{
-		case 'q':
-		case 'Q':
+	switch (key){
+		//exit
 		case 27:
 			exit (0);
 			break;
 
+		//MOVEMENT
+		//if not about to intersect with wall, move character
+		//check if picking up item, and if so, update variables accordingly
+
+		//left
 		case 'a':
 		case 'A':
 			if(!wallIntersection(walls, pos[0]-0.25, pos[2]))
@@ -188,6 +188,7 @@ void kbd(unsigned char key, int x, int y)
 			pickedUp = itemIntersection(items, numItems, pickedUp, pos[0], pos[2]);
 			break;
 
+		//up
 		case 'w':
 		case 'W':
 			if(!wallIntersection(walls, pos[0], pos[2]-0.25))
@@ -198,6 +199,7 @@ void kbd(unsigned char key, int x, int y)
 			pickedUp = itemIntersection(items, numItems, pickedUp, pos[0], pos[2]);
 			break;
 
+		//right
 		case 'd':
 		case 'D':
 			if(!wallIntersection(walls, pos[0]+0.25, pos[2]))
@@ -208,6 +210,7 @@ void kbd(unsigned char key, int x, int y)
 			pickedUp = itemIntersection(items, numItems, pickedUp, pos[0], pos[2]);
 			break;
 
+		//down
 		case 's':
 		case 'S':
 			if(!wallIntersection(walls, pos[0], pos[2]+0.25))
@@ -217,21 +220,29 @@ void kbd(unsigned char key, int x, int y)
 			if (animate) frame++;
 			pickedUp = itemIntersection(items, numItems, pickedUp, pos[0], pos[2]);
 			break;
+
+		//toggle between characters
 		case 'c':
+		case 'C':
 			character++;
 			break;
 
-		case 13: //enter to restart
-			initMaze();
-			seconds = 0;
+		//if you've own, hit enter to restart
+		case 13:
+			if (win)
+				{initMaze(); seconds = 0;}
+			break;
+
+		default:
 			break;
 			
 	}
 	glutPostRedisplay();
 }
 
-//resets the vars used to check if a key is being held down (for walk-animation)
-void keyUp(unsigned char key,int x, int y){
+//for walk animation
+//keyUp = no more animating
+void keyUp(unsigned char key, int x, int y){
 	switch(key)
 	{
 		case 'a':
@@ -248,72 +259,33 @@ void keyUp(unsigned char key,int x, int y){
 	glutPostRedisplay();
 }
 
-void special(int key, int x, int y){
-	switch(key){
-		case GLUT_KEY_LEFT:
-		eye[0]-=2;
-		break;
-
-		case GLUT_KEY_RIGHT:
-		eye[0]+=2;
-		break;
-
-		case GLUT_KEY_UP:
-		eye[2]+=2;
-		break;
-
-		case GLUT_KEY_DOWN:
-		eye[2]-=2;
-		break;
-
-		default:
-		break;
-	}
-}
-
 int main(int argc, char** argv)
-{	//PlaySound("starwars.wav", NULL, SND_ASYNC|SND_FILENAME|SND_LOOP);
-	//glut initialization stuff:
-	// set the window size, display mode, and create the window
+{	
+	//glut inits
 	glutInit(&argc, argv);
 	glutInitWindowSize(800, 800);
 	glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE | GLUT_DEPTH);
-	glutCreateWindow("Maze Game");
-
-	//enable Z buffer test, otherwise things appear in the order they're drawn
+	glutCreateWindow("Winter Maze");
 	glEnable(GL_DEPTH_TEST);
 
-	//setup the initial view
-	// change to projection matrix mode, set the extents of our viewing volume
+	//viewing volume
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPerspective(60,1,0.0001f,10000.0f);
+	gluPerspective(45,1,0.1,500);
 
-	//set clear colour to white
+	//clear color
 	glClearColor(0, 0, 0, 0);
 
-	glMatrixMode(GL_MODELVIEW);
-	//look down from a 45 deg. angle
-	glRotatef(45, 1, 0, 0);
-
-	//register glut callbacks for keyboard and display function
+	//callbacks
 	glutKeyboardFunc(kbd);
 	glutDisplayFunc(display);
-	glutSpecialFunc(special);
 	glutKeyboardUpFunc(keyUp);
 	glutIdleFunc(idle);
 	glutTimerFunc(1000, timer, 0);
 
-	/*glEnable(GL_TEXTURE_2D);
-	img_data = LoadPPM((char*)"marble.ppm", &width, &height, &MAX);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB,
-	GL_UNSIGNED_BYTE, img_data); */
-
-
-	//win_img = LoadPPM((char*)"ribbon.ppm", &winW, &winH, &winMAX);
-	init();
+	//game inits
+	initTextures();
 	initMaze();
-
 
 	//start the program!
 	glutMainLoop();
